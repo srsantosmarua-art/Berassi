@@ -20,11 +20,12 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchProfessionals() {
-      const { data } = await supabase
-        .from('professionals')
-        .select('*')
-        .eq('active', true)
-        .order('display_order', { ascending: true })
+      const { data, error } = await supabase
+  .from('professionals')
+  .select('*')
+
+console.log('DATA:', data)
+console.log('ERROR:', error)
       if (data) setProfessionals(data)
       setLoading(false)
     }
