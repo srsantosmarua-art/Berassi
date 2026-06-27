@@ -2,24 +2,33 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { supabase, Appointment, Service } from '@/lib/supabase'
+import { Phone, Scissors, Calendar, CircleDollarSign, UserRound, ChevronRight, CalendarCheck } from 'lucide-react'
 
 type Tab = 'agendar' | 'lista'
 type Slot = { id: string; start_time: string }
 
 const card: React.CSSProperties = {
-  background: 'rgba(255,255,255,.04)',
-  border: '1px solid rgba(201,168,76,.15)',
-  borderRadius: 16,
-  padding: 24,
+  background: 'rgba(255,255,255,.03)',
+  border: '1px solid rgba(201,168,76,.12)',
+  borderRadius: 20,
+  padding: '24px 28px',
+}
+
+const formCard: React.CSSProperties = {
+  background: 'rgba(12,10,7,.85)',
+  border: '1px solid rgba(201,168,76,.35)',
+  borderRadius: 20,
+  padding: '32px 28px',
+  boxShadow: '0 0 40px rgba(201,168,76,.06)',
 }
 
 const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,.05)',
+  background: 'rgba(255,255,255,.04)',
   border: '1px solid rgba(201,168,76,.2)',
   borderRadius: 10,
   color: '#F5F0E8',
   fontSize: 14,
-  padding: '10px 14px',
+  padding: '12px 14px 12px 40px',
   outline: 'none',
   width: '100%',
   boxSizing: 'border-box',
@@ -158,7 +167,7 @@ export default function AgendamentosPage() {
         await supabase.from('financial_records').insert({
           professional_id: professionalId,
           description: `${(appt as any).service_name ?? appt.service?.name ?? 'Serviço'} — ${appt.client_name}`,
-          amount,
+          amount: amount * 0.7,
           type: 'appointment',
           recorded_at: appt.scheduled_at,
         })
@@ -190,17 +199,17 @@ export default function AgendamentosPage() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: 10 }}>
+      <div style={{ display: 'flex', gap: 8 }}>
         {([['lista', 'Agendamentos'], ['agendar', '+ Novo agendamento']] as const).map(([key, lbl]) => (
           <button
             key={key}
             onClick={() => setTab(key)}
             style={{
-              padding: '10px 20px', borderRadius: 12, fontSize: 14, cursor: 'pointer',
+              padding: '10px 22px', borderRadius: 12, fontSize: 14, cursor: 'pointer',
               transition: 'all .2s',
-              background: tab === key ? '#C9A84C' : 'rgba(255,255,255,.04)',
-              color: tab === key ? '#0d0d0d' : 'rgba(245,240,232,.8)',
-              border: tab === key ? 'none' : '1px solid rgba(255,255,255,.08)',
+              background: tab === key ? '#C9A84C' : 'rgba(255,255,255,.03)',
+              color: tab === key ? '#0d0d0d' : 'rgba(245,240,232,.7)',
+              border: tab === key ? 'none' : '1px solid rgba(201,168,76,.15)',
               fontWeight: tab === key ? 500 : 400,
             }}
           >
@@ -211,42 +220,62 @@ export default function AgendamentosPage() {
 
       {/* ── FORM ── */}
       {tab === 'agendar' && (
-        <div style={card}>
-          <p style={{ color: '#F5F0E8', fontSize: 15, marginBottom: 24 }}>Dados do cliente</p>
+        <div style={formCard}>
+
+          {/* Título */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+            <UserRound size={18} style={{ color: 'rgba(201,168,76,.7)' }} />
+            <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 400 }}>Dados do cliente</p>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <span style={labelStyle}>Nome do cliente</span>
-                <input style={inputStyle} placeholder="Ex: Maria Silva" value={clientName} onChange={e => setClientName(e.target.value)} />
+                <div style={{ position: 'relative' }}>
+                  <UserRound size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none' }} />
+                  <input style={inputStyle} placeholder="Ex: Maria Silva" value={clientName} onChange={e => setClientName(e.target.value)} />
+                </div>
               </div>
               <div>
                 <span style={labelStyle}>Telefone</span>
-                <input style={inputStyle} placeholder="(11) 99999-9999" value={clientPhone} onChange={e => setClientPhone(e.target.value)} />
+                <div style={{ position: 'relative' }}>
+                  <Phone size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none' }} />
+                  <input style={inputStyle} placeholder="(11) 99999-9999" value={clientPhone} onChange={e => setClientPhone(e.target.value)} />
+                </div>
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <span style={labelStyle}>Serviço</span>
-                <input style={inputStyle} placeholder="Ex: Escova, Corte..." value={serviceName} onChange={e => setServiceName(e.target.value)} />
+                <div style={{ position: 'relative' }}>
+                  <Scissors size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none' }} />
+                  <input style={inputStyle} placeholder="Ex: Escova, Corte..." value={serviceName} onChange={e => setServiceName(e.target.value)} />
+                </div>
               </div>
               <div>
                 <span style={labelStyle}>Valor (R$)</span>
-                <input style={inputStyle} type="number" placeholder="0,00" value={serviceAmount} onChange={e => setServiceAmount(e.target.value)} />
+                <div style={{ position: 'relative' }}>
+                  <CircleDollarSign size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none' }} />
+                  <input style={inputStyle} type="number" placeholder="0,00" value={serviceAmount} onChange={e => setServiceAmount(e.target.value)} />
+                </div>
               </div>
             </div>
 
             <div>
               <span style={labelStyle}>Data</span>
-              <input
-                style={{ ...inputStyle, width: 'auto' }}
-                type="date"
-                min={today}
-                value={selectedDate}
-                onChange={e => setSelectedDate(e.target.value)}
-              />
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <Calendar size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none', zIndex: 1 }} />
+                <input
+                  style={{ ...inputStyle, width: 200 }}
+                  type="date"
+                  min={today}
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                />
+              </div>
             </div>
 
             {selectedDate && (
@@ -292,19 +321,30 @@ export default function AgendamentosPage() {
               </div>
             )}
 
+            {/* Botão confirmar */}
             <button
               onClick={addAppointment}
               disabled={savingAppt || !canConfirm}
               style={{
-                height: 48, borderRadius: 12, fontSize: 15, fontWeight: 500,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 10,
+                height: 56,
+                borderRadius: 14,
+                fontSize: 15,
+                fontWeight: 500,
                 cursor: canConfirm ? 'pointer' : 'not-allowed',
                 transition: 'all .2s',
-                background: canConfirm ? '#C9A84C' : 'rgba(201,168,76,.2)',
-                color: canConfirm ? '#0d0d0d' : 'rgba(201,168,76,.5)',
-                border: 'none', marginTop: 8,
+                background: canConfirm ? 'linear-gradient(135deg, #A07830, #C9A84C, #E4C96A)' : 'rgba(201,168,76,.15)',
+                color: canConfirm ? '#0d0d0d' : 'rgba(201,168,76,.4)',
+                border: 'none',
+                marginTop: 8,
               }}
             >
+              <CalendarCheck size={17} />
               {savingAppt ? 'Agendando...' : 'Confirmar agendamento'}
+              {canConfirm && <ChevronRight size={16} style={{ marginLeft: 4 }} />}
             </button>
           </div>
         </div>
@@ -323,35 +363,46 @@ export default function AgendamentosPage() {
               <p style={{ color: 'rgba(245,240,232,.4)', fontSize: 16 }}>Nenhum agendamento nos últimos 2 meses</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {appointments.map(appt => {
                 const st = statusInfo[appt.status] ?? statusInfo.pending
                 const scheduledDate = new Date(appt.scheduled_at)
                 const isPast = scheduledDate < new Date()
 
                 return (
-                  <div key={appt.id} style={{ ...card, padding: '18px 24px' }}>
+                  <div key={appt.id} style={card}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6 }}>
-                          <p style={{ color: '#F5F0E8', fontSize: 16 }}>{appt.client_name}</p>
+
+                        {/* Nome + status */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                          <p style={{ color: '#F5F0E8', fontSize: 17, fontWeight: 400 }}>{appt.client_name}</p>
                           <span style={{
                             fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase',
-                            color: st.color, padding: '2px 8px', borderRadius: 99,
-                            background: `${st.color}18`, border: `1px solid ${st.color}40`,
+                            color: st.color, padding: '3px 10px', borderRadius: 99,
+                            background: `${st.color}15`, border: `1px solid ${st.color}35`,
                           }}>
                             {st.label}
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginBottom: 10 }}>
-                          <span style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>📞 {appt.client_phone}</span>
-                          <span style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>✂️ {(appt as any).service_name ?? appt.service?.name ?? '—'}</span>
-                          <span style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
-                            🗓 {scheduledDate.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' })} às {scheduledDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        {/* Infos */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginBottom: 14 }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
+                            <Phone size={13} style={{ color: '#C9A84C', opacity: 0.7 }} />
+                            {appt.client_phone}
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
+                            <Scissors size={13} style={{ color: '#f87171', opacity: 0.8 }} />
+                            {(appt as any).service_name ?? appt.service?.name ?? '—'}
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
+                            <Calendar size={13} style={{ color: 'rgba(245,240,232,.4)' }} />
+                            {scheduledDate.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' })} às {scheduledDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
 
+                        {/* Valor */}
                         <p style={{ fontSize: 20, color: '#C9A84C', fontWeight: 300, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                           {fmt(appt.amount)}
                         </p>
@@ -364,8 +415,8 @@ export default function AgendamentosPage() {
                             disabled={saving === appt.id}
                             style={{
                               padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer',
-                              background: 'rgba(74,222,128,.1)', border: '1px solid rgba(74,222,128,.3)',
-                              color: '#4ade80', whiteSpace: 'nowrap',
+                              background: 'rgba(74,222,128,.08)', border: '1px solid rgba(74,222,128,.25)',
+                              color: '#4ade80', whiteSpace: 'nowrap', transition: 'all .2s',
                             }}
                           >
                             ✓ Compareceu
@@ -375,8 +426,8 @@ export default function AgendamentosPage() {
                             disabled={saving === appt.id}
                             style={{
                               padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer',
-                              background: 'rgba(248,113,113,.1)', border: '1px solid rgba(248,113,113,.3)',
-                              color: '#f87171', whiteSpace: 'nowrap',
+                              background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.25)',
+                              color: '#f87171', whiteSpace: 'nowrap', transition: 'all .2s',
                             }}
                           >
                             ✗ Não compareceu

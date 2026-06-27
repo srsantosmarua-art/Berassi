@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { TimeSlot } from '@/lib/supabase'
+import { Lock, LockOpen } from 'lucide-react'
 
 const HOURS = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30',
   '13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30',
@@ -98,8 +99,8 @@ export default function HorariosPage() {
 
       {/* Carrossel de dias */}
       <div
-        className="flex gap-3 overflow-x-auto pb-4"
-        style={{ scrollbarWidth: 'none', marginBottom: 40 }}
+        className="flex gap-2 overflow-x-auto pb-4"
+        style={{ scrollbarWidth: 'none', marginBottom: 36 }}
       >
         {days.map(day => {
           const dateStr = formatDate(day)
@@ -110,20 +111,20 @@ export default function HorariosPage() {
               onClick={() => setSelectedDate(dateStr)}
               className="transition-all duration-200 flex-shrink-0"
               style={{
-                width: 74, minWidth: 74, height: 84,
-                borderRadius: 16,
-                border: isSelected ? 'none' : '1px solid rgba(201,168,76,.15)',
-                background: isSelected ? '#C9A84C' : 'rgba(10,10,10,.75)',
+                width: 68, minWidth: 68, height: 80,
+                borderRadius: 14,
+                border: isSelected ? '1px solid rgba(201,168,76,.8)' : '1px solid rgba(201,168,76,.12)',
+                background: isSelected ? '#C9A84C' : 'rgba(10,10,10,.6)',
                 color: isSelected ? '#0d0d0d' : '#F5F0E8',
               }}
             >
-              <div style={{ fontSize: 11, textTransform: 'uppercase', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', opacity: isSelected ? 0.8 : 0.5, marginBottom: 3 }}>
                 {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
               </div>
               <div style={{ fontSize: 22, lineHeight: 1, fontWeight: 700 }}>
                 {day.getDate()}
               </div>
-              <div style={{ fontSize: 12, opacity: 0.8, marginTop: 2 }}>
+              <div style={{ fontSize: 11, opacity: isSelected ? 0.7 : 0.4, marginTop: 3 }}>
                 {day.toLocaleDateString('pt-BR', { month: 'short' })}
               </div>
             </button>
@@ -132,34 +133,50 @@ export default function HorariosPage() {
       </div>
 
       {/* Header data + botão */}
-      <div className="flex items-center justify-between" style={{ marginBottom: 28 }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
         <h2 style={{ color: '#F5F0E8', fontSize: 15, fontWeight: 400 }}>
           {selectedDay.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
         </h2>
         <button
           onClick={isBlocked ? unblockDay : blockDay}
           disabled={saving}
+          className="flex items-center gap-2 transition-all duration-200"
           style={{
-            width: 130, height: 42, borderRadius: 12,
-            border: '1px solid rgba(255,255,255,.08)',
-            background: 'rgba(255,255,255,.02)',
-            color: '#D9D0BF', fontSize: 14, cursor: 'pointer',
+            padding: '10px 18px',
+            borderRadius: 12,
+            border: '1px solid rgba(201,168,76,.25)',
+            background: 'rgba(201,168,76,.05)',
+            color: '#C9A84C',
+            fontSize: 13,
+            cursor: 'pointer',
+            letterSpacing: '0.02em',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,.6)'
+            ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(201,168,76,.1)'
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,.25)'
+            ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(201,168,76,.05)'
           }}
         >
-          {isBlocked ? 'Desbloquear dia' : 'Bloquear dia'}
+          {isBlocked
+            ? <><LockOpen size={14} /> Desbloquear dia</>
+            : <><Lock size={14} /> Bloquear dia</>
+          }
         </button>
       </div>
 
       {/* Legenda */}
-      <div className="flex gap-6 flex-wrap" style={{ marginBottom: 36 }}>
+      <div className="flex gap-5 flex-wrap" style={{ marginBottom: 28 }}>
         {[
           { label: 'Disponível', bg: 'rgba(201,168,76,.15)', border: 'rgba(201,168,76,.5)' },
           { label: 'Agendado',   bg: 'rgba(239,68,68,.15)',  border: 'rgba(239,68,68,.5)' },
-          { label: 'Livre',      bg: 'rgba(10,10,10,.75)', border: 'rgba(255,255,255,.1)' },
+          { label: 'Livre',      bg: 'rgba(10,10,10,.6)',    border: 'rgba(255,255,255,.12)' },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-2">
-            <div style={{ width: 14, height: 14, borderRadius: 4, background: item.bg, border: `1px solid ${item.border}` }} />
-            <span style={{ color: 'rgba(255,255,255,.65)', fontSize: 14 }}>{item.label}</span>
+            <div style={{ width: 13, height: 13, borderRadius: 3, background: item.bg, border: `1px solid ${item.border}` }} />
+            <span style={{ color: 'rgba(255,255,255,.55)', fontSize: 13 }}>{item.label}</span>
           </div>
         ))}
       </div>
@@ -171,11 +188,11 @@ export default function HorariosPage() {
             style={{ border: '2px solid rgba(201,168,76,.2)', borderTopColor: '#C9A84C' }} />
         </div>
       ) : isBlocked ? (
-        <div style={{ padding: 40, borderRadius: 16, textAlign: 'center', border: '1px solid rgba(239,68,68,.25)', background: 'rgba(239,68,68,.05)' }}>
-          <p style={{ color: '#f87171', fontSize: 16 }}>Este dia está bloqueado</p>
+        <div style={{ padding: 40, borderRadius: 16, textAlign: 'center', border: '1px solid rgba(239,68,68,.2)', background: 'rgba(239,68,68,.04)' }}>
+          <p style={{ color: '#f87171', fontSize: 15 }}>Este dia está bloqueado</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           {HOURS.map(time => {
             const slot = getSlot(time)
             const isBooked = !!slot?.appointment_id
@@ -189,19 +206,24 @@ export default function HorariosPage() {
                 style={{
                   height: 52,
                   border: isBooked
-                    ? '1px solid rgba(239,68,68,.45)'
+                    ? '1px solid rgba(239,68,68,.4)'
                     : isOpen
-                    ? '1px solid rgba(201,168,76,.65)'
-                    : '1px solid rgba(201,168,76,.2)',
+                    ? '1px solid rgba(201,168,76,.55)'
+                    : '1px solid rgba(201,168,76,.15)',
                   background: isBooked
-                    ? 'rgba(239,68,68,.12)'
+                    ? 'rgba(239,68,68,.1)'
                     : isOpen
-                    ? 'rgba(201,168,76,.15)'
-                    : 'rgba(10,10,10,.75)',
-                  color: isBooked ? '#f87171' : isOpen ? '#C9A84C' : 'rgba(255,255,255,.65)',
+                    ? 'rgba(201,168,76,.12)'
+                    : 'rgba(10,10,10,.6)',
+                  color: isBooked
+                    ? '#f87171'
+                    : isOpen
+                    ? '#C9A84C'
+                    : 'rgba(255,255,255,.55)',
                   fontSize: 15,
                   fontWeight: 400,
                   cursor: isBooked ? 'not-allowed' : 'pointer',
+                  letterSpacing: '0.02em',
                 }}
               >
                 {time}

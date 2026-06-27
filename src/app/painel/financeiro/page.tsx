@@ -24,14 +24,14 @@ function periodDates(period: Period, from: string, to: string): [string, string]
 }
 
 const card: React.CSSProperties = {
-  background: 'rgba(255,255,255,.04)',
-  border: '1px solid rgba(201,168,76,.15)',
-  borderRadius: 16,
-  padding: 24,
+  background: 'rgba(255,255,255,.03)',
+  border: '1px solid rgba(201,168,76,.12)',
+  borderRadius: 20,
+  padding: '24px 28px',
 }
 
 const inputStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,.05)',
+  background: 'rgba(255,255,255,.04)',
   border: '1px solid rgba(201,168,76,.2)',
   borderRadius: 10,
   color: '#F5F0E8',
@@ -169,19 +169,19 @@ export default function FinanceiroPage() {
   ]
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
       {/* Filtrar período */}
       <div style={card}>
         <span style={label}>Filtrar período</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap', marginTop: 14 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <span style={{ ...label, marginBottom: 0 }}>De</span>
             <input
               type="date"
               value={from}
               onChange={e => { setPeriod('custom'); setFromDate(e.target.value) }}
-              style={{ ...inputStyle, width: 140 }}
+              style={{ ...inputStyle, width: 148 }}
             />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -190,23 +190,23 @@ export default function FinanceiroPage() {
               type="date"
               value={to}
               onChange={e => { setPeriod('custom'); setToDate(e.target.value) }}
-              style={{ ...inputStyle, width: 140 }}
+              style={{ ...inputStyle, width: 148 }}
             />
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 18 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {PERIODS.map(p => (
               <button
                 key={p.key}
                 onClick={() => setPeriod(p.key)}
                 style={{
-                  padding: '8px 16px',
+                  padding: '10px 16px',
                   borderRadius: 10,
                   fontSize: 13,
                   cursor: 'pointer',
                   transition: 'all .2s',
-                  background: period === p.key ? 'rgba(201,168,76,.15)' : 'rgba(255,255,255,.03)',
-                  border: period === p.key ? '1px solid rgba(201,168,76,.6)' : '1px solid rgba(255,255,255,.08)',
-                  color: period === p.key ? '#C9A84C' : 'rgba(245,240,232,.7)',
+                  background: period === p.key ? 'rgba(201,168,76,.18)' : 'rgba(255,255,255,.03)',
+                  border: period === p.key ? '1px solid rgba(201,168,76,.65)' : '1px solid rgba(201,168,76,.12)',
+                  color: period === p.key ? '#C9A84C' : 'rgba(245,240,232,.6)',
                 }}
               >
                 {p.label}
@@ -226,22 +226,24 @@ export default function FinanceiroPage() {
           {/* Meu faturamento */}
           <div style={card}>
             <span style={label}>Meu faturamento — {periodLabel}</span>
-            <p style={{ fontSize: 32, fontWeight: 300, color: '#C9A84C', marginTop: 8, marginBottom: 8,
-              fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+            <p style={{
+              fontSize: 34, fontWeight: 300, color: '#C9A84C', marginTop: 10, marginBottom: 10,
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+            }}>
               {fmt(total)}
             </p>
             <p style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
-              Agendamentos: {fmt(totalConfirmed)} &nbsp;·&nbsp; Avulsos: {fmt(totalWalkin)}
+              Agendamentos: {fmt(totalConfirmed)} &nbsp;•&nbsp; Avulsos: {fmt(totalWalkin)}
             </p>
           </div>
 
           {/* Meta do mês */}
           <div style={card}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <span style={{ color: '#F5F0E8', fontSize: 14 }}>Meta do mês</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <span style={{ color: '#F5F0E8', fontSize: 15, fontWeight: 400 }}>Meta do mês</span>
               <button
                 onClick={() => setShowGoalInput(v => !v)}
-                style={{ fontSize: 13, color: '#C9A84C', background: 'none', border: 'none', cursor: 'pointer' }}
+                style={{ fontSize: 13, color: '#C9A84C', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.02em' }}
               >
                 Definir meta
               </button>
@@ -249,11 +251,11 @@ export default function FinanceiroPage() {
 
             {goal ? (
               <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
                   <span style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>{fmt(total)} faturado</span>
                   <span style={{ fontSize: 13, color: 'rgba(245,240,232,.5)' }}>Meta: {fmt(goal.target_amount)}</span>
                 </div>
-                <div style={{ width: '100%', height: 6, borderRadius: 99, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: 5, borderRadius: 99, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
                   <div style={{
                     height: '100%', borderRadius: 99, transition: 'width .7s ease',
                     width: `${goalProgress}%`,
@@ -275,14 +277,14 @@ export default function FinanceiroPage() {
                   value={goalInput}
                   onChange={e => setGoalInput(e.target.value)}
                   placeholder="Valor da meta (R$)"
-                  style={{ ...inputStyle }}
+                  style={inputStyle}
                 />
                 <button
                   onClick={saveGoal}
                   disabled={savingGoal}
                   style={{
                     padding: '10px 20px', borderRadius: 10, cursor: 'pointer', whiteSpace: 'nowrap',
-                    background: 'rgba(201,168,76,.15)', border: '1px solid rgba(201,168,76,.5)',
+                    background: 'rgba(201,168,76,.12)', border: '1px solid rgba(201,168,76,.4)',
                     color: '#C9A84C', fontSize: 14,
                   }}
                 >
@@ -291,14 +293,17 @@ export default function FinanceiroPage() {
               </div>
             )}
           </div>
+
           {/* Faturamento da equipe */}
           {isOwner && (
             <div style={card}>
               <span style={label}>Equipe — {periodLabel}</span>
-              <div style={{ marginTop: 12, marginBottom: 20 }}>
+              <div style={{ marginTop: 10, marginBottom: 20 }}>
                 <span style={{ ...label, marginBottom: 4 }}>Total geral</span>
-                <p style={{ fontSize: 32, fontWeight: 300, color: '#C9A84C',
-                  fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+                <p style={{
+                  fontSize: 34, fontWeight: 300, color: '#C9A84C',
+                  fontFamily: "'Cormorant Garamond', Georgia, serif",
+                }}>
                   {fmt(Object.values(teamRecords).flat().reduce((s, r) => s + r.amount, 0))}
                 </p>
               </div>
@@ -308,7 +313,7 @@ export default function FinanceiroPage() {
                   return (
                     <div key={pro.id} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      padding: '12px 0',
+                      padding: '13px 0',
                       borderBottom: i < allPros.length - 1 ? '1px solid rgba(201,168,76,.08)' : 'none',
                     }}>
                       <span style={{ fontSize: 14, color: '#F5F0E8' }}>{pro.name}</span>
@@ -327,7 +332,7 @@ export default function FinanceiroPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {records.map(rec => (
                   <div key={rec.id} style={{
-                    ...card, padding: '14px 20px',
+                    ...card, padding: '14px 22px',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}>
                     <div>
