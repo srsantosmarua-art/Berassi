@@ -13,6 +13,9 @@ export default function AcessoPage() {
 
   useEffect(() => {
     async function login() {
+      // Faz logout primeiro para limpar sessão anterior
+      await supabase.auth.signOut()
+
       const { data: pro } = await supabase
         .from('professionals')
         .select('email')
