@@ -17,8 +17,6 @@ const PROFILES = [
   { name: 'Renata',       token: 'e2805de2-8291-4ae6-8132-e2091dba5dda' },
 ]
 
-const BASE_URL = 'https://berassi-rho.vercel.app'
-
 export default function PainelLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -99,11 +97,10 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
                     boxShadow: '0 8px 32px rgba(0,0,0,.6)',
                   }}>
                     {PROFILES.map((p, i) => (
+                      
                       <a
                         key={p.token}
-                        href={`${BASE_URL}/painel/acesso/${p.token}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={`/acesso/${p.token}`}
                         style={{
                           display: 'block',
                           padding: '13px 20px',
