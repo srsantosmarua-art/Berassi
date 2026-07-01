@@ -24,7 +24,7 @@ function periodDates(period: Period, from: string, to: string): [string, string]
 }
 
 const card: React.CSSProperties = {
-  background: 'rgba(255,255,255,.03)',
+  background: 'rgba(5,5,5,.92)',
   border: '1px solid rgba(201,168,76,.12)',
   borderRadius: 20,
   padding: '24px 28px',

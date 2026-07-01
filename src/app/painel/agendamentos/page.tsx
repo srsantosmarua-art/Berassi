@@ -7,15 +7,17 @@ import { Phone, Scissors, Calendar, CircleDollarSign, UserRound, ChevronRight, C
 type Tab = 'agendar' | 'lista'
 type Slot = { id: string; start_time: string }
 
+const OWNERS = ['bete@berassi.com', 'simone@berassi.com']
+
 const card: React.CSSProperties = {
-  background: 'rgba(255,255,255,.03)',
+  background: 'rgba(5,5,5,.92)',
   border: '1px solid rgba(201,168,76,.12)',
   borderRadius: 20,
   padding: '24px 28px',
 }
 
 const formCard: React.CSSProperties = {
-  background: 'rgba(12,10,7,.85)',
+  background: 'rgba(5,5,5,.95)',
   border: '1px solid rgba(201,168,76,.35)',
   borderRadius: 20,
   padding: '32px 28px',
@@ -50,6 +52,7 @@ function fmt(v: number) {
 export default function AgendamentosPage() {
   const [tab, setTab] = useState<Tab>('lista')
   const [professionalId, setProfessionalId] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
   const [appointments, setAppointments] = useState<(Appointment & { service?: Service })[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState<string | null>(null)
@@ -68,6 +71,7 @@ export default function AgendamentosPage() {
     async function loadPro() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
+      setUserEmail(user.email ?? '')
       const { data: pro } = await supabase.from('professionals').select('id').eq('email', user.email).single()
       if (pro) setProfessionalId(pro.id)
     }
@@ -121,10 +125,8 @@ export default function AgendamentosPage() {
   async function addAppointment() {
     if (!professionalId || !clientName || !clientPhone || !serviceName || !serviceAmount || selectedSlots.length === 0) return
     setSavingAppt(true)
-
     const sorted = [...selectedSlots].sort((a, b) => a.start_time.localeCompare(b.start_time))
     const scheduledAt = `${selectedDate}T${sorted[0].start_time}`
-
     const { data: appt } = await supabase.from('appointments').insert({
       professional_id: professionalId,
       client_name: clientName,
@@ -134,24 +136,13 @@ export default function AgendamentosPage() {
       scheduled_at: scheduledAt,
       status: 'pending',
     }).select().single()
-
     if (appt) {
       for (const slot of sorted) {
-        await supabase.from('time_slots').update({
-          appointment_id: appt.id,
-          is_available: false,
-        }).eq('id', slot.id)
+        await supabase.from('time_slots').update({ appointment_id: appt.id, is_available: false }).eq('id', slot.id)
       }
     }
-
-    setClientName('')
-    setClientPhone('')
-    setServiceName('')
-    setServiceAmount('')
-    setSelectedDate('')
-    setSelectedSlots([])
-    setSlots([])
-
+    setClientName(''); setClientPhone(''); setServiceName(''); setServiceAmount('')
+    setSelectedDate(''); setSelectedSlots([]); setSlots([])
     await loadAppointments()
     setTab('lista')
     setSavingAppt(false)
@@ -164,10 +155,11 @@ export default function AgendamentosPage() {
     if (status === 'confirmed') {
       const appt = appointments.find(a => a.id === apptId)
       if (appt) {
+        const isOwner = OWNERS.includes(userEmail)
         await supabase.from('financial_records').insert({
           professional_id: professionalId,
           description: `${(appt as any).service_name ?? appt.service?.name ?? 'Serviço'} — ${appt.client_name}`,
-          amount: amount * 0.7,
+          amount: isOwner ? amount : amount * 0.7,
           type: 'appointment',
           recorded_at: appt.scheduled_at,
         })
@@ -175,8 +167,7 @@ export default function AgendamentosPage() {
     }
 
     if (status === 'no_show') {
-      await supabase
-        .from('time_slots')
+      await supabase.from('time_slots')
         .update({ appointment_id: null, is_available: true })
         .eq('appointment_id', apptId)
     }
@@ -207,7 +198,7 @@ export default function AgendamentosPage() {
             style={{
               padding: '10px 22px', borderRadius: 12, fontSize: 14, cursor: 'pointer',
               transition: 'all .2s',
-              background: tab === key ? '#C9A84C' : 'rgba(255,255,255,.03)',
+              background: tab === key ? '#C9A84C' : 'rgba(5,5,5,.92)',
               color: tab === key ? '#0d0d0d' : 'rgba(245,240,232,.7)',
               border: tab === key ? 'none' : '1px solid rgba(201,168,76,.15)',
               fontWeight: tab === key ? 500 : 400,
@@ -218,18 +209,13 @@ export default function AgendamentosPage() {
         ))}
       </div>
 
-      {/* ── FORM ── */}
       {tab === 'agendar' && (
         <div style={formCard}>
-
-          {/* Título */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
             <UserRound size={18} style={{ color: 'rgba(201,168,76,.7)' }} />
             <p style={{ color: '#F5F0E8', fontSize: 16, fontWeight: 400 }}>Dados do cliente</p>
           </div>
-
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div>
                 <span style={labelStyle}>Nome do cliente</span>
@@ -246,8 +232,7 @@ export default function AgendamentosPage() {
                 </div>
               </div>
             </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gui: 12 } as any}>
               <div>
                 <span style={labelStyle}>Serviço</span>
                 <div style={{ position: 'relative' }}>
@@ -263,55 +248,35 @@ export default function AgendamentosPage() {
                 </div>
               </div>
             </div>
-
             <div>
               <span style={labelStyle}>Data</span>
               <div style={{ position: 'relative', display: 'inline-block' }}>
                 <Calendar size={14} style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', color: 'rgba(201,168,76,.5)', pointerEvents: 'none', zIndex: 1 }} />
-                <input
-                  style={{ ...inputStyle, width: 200 }}
-                  type="date"
-                  min={today}
-                  value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
-                />
+                <input style={{ ...inputStyle, width: 200 }} type="date" min={today} value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
               </div>
             </div>
-
             {selectedDate && (
               <div>
                 <span style={labelStyle}>
                   Horários disponíveis
-                  {selectedSlots.length > 0 && (
-                    <span style={{ color: '#C9A84C', marginLeft: 8, fontWeight: 600 }}>
-                      {selectedSlots.length} selecionado{selectedSlots.length > 1 ? 's' : ''}
-                    </span>
-                  )}
+                  {selectedSlots.length > 0 && <span style={{ color: '#C9A84C', marginLeft: 8, fontWeight: 600 }}>{selectedSlots.length} selecionado{selectedSlots.length > 1 ? 's' : ''}</span>}
                 </span>
-
                 {loadingSlots ? (
                   <p style={{ color: 'rgba(245,240,232,.4)', fontSize: 13 }}>Carregando horários...</p>
                 ) : slots.length === 0 ? (
-                  <p style={{ color: 'rgba(245,240,232,.4)', fontSize: 13 }}>
-                    Nenhum horário disponível neste dia. Adicione horários em "Meus horários".
-                  </p>
+                  <p style={{ color: 'rgba(245,240,232,.4)', fontSize: 13 }}>Nenhum horário disponível neste dia.</p>
                 ) : (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
                     {slots.map(slot => {
                       const isSelected = !!selectedSlots.find(s => s.id === slot.id)
                       return (
-                        <button
-                          key={slot.id}
-                          onClick={() => toggleSlot(slot)}
-                          style={{
-                            height: 44, borderRadius: 10, fontSize: 14, cursor: 'pointer',
-                            transition: 'all .2s',
-                            background: isSelected ? '#C9A84C' : 'rgba(255,255,255,.04)',
-                            color: isSelected ? '#0d0d0d' : 'rgba(245,240,232,.8)',
-                            border: isSelected ? 'none' : '1px solid rgba(201,168,76,.2)',
-                            fontWeight: isSelected ? 600 : 400,
-                          }}
-                        >
+                        <button key={slot.id} onClick={() => toggleSlot(slot)} style={{
+                          height: 44, borderRadius: 10, fontSize: 14, cursor: 'pointer', transition: 'all .2s',
+                          background: isSelected ? '#C9A84C' : 'rgba(5,5,5,.92)',
+                          color: isSelected ? '#0d0d0d' : 'rgba(245,240,232,.8)',
+                          border: isSelected ? 'none' : '1px solid rgba(201,168,76,.2)',
+                          fontWeight: isSelected ? 600 : 400,
+                        }}>
                           {slot.start_time.slice(0, 5)}
                         </button>
                       )
@@ -320,28 +285,13 @@ export default function AgendamentosPage() {
                 )}
               </div>
             )}
-
-            {/* Botão confirmar */}
-            <button
-              onClick={addAppointment}
-              disabled={savingAppt || !canConfirm}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: 10,
-                height: 56,
-                borderRadius: 14,
-                fontSize: 15,
-                fontWeight: 500,
-                cursor: canConfirm ? 'pointer' : 'not-allowed',
-                transition: 'all .2s',
-                background: canConfirm ? 'linear-gradient(135deg, #A07830, #C9A84C, #E4C96A)' : 'rgba(201,168,76,.15)',
-                color: canConfirm ? '#0d0d0d' : 'rgba(201,168,76,.4)',
-                border: 'none',
-                marginTop: 8,
-              }}
-            >
+            <button onClick={addAppointment} disabled={savingAppt || !canConfirm} style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              height: 56, borderRadius: 14, fontSize: 15, fontWeight: 500,
+              cursor: canConfirm ? 'pointer' : 'not-allowed', transition: 'all .2s',
+              background: canConfirm ? 'linear-gradient(135deg, #A07830, #C9A84C, #E4C96A)' : 'rgba(201,168,76,.15)',
+              color: canConfirm ? '#0d0d0d' : 'rgba(201,168,76,.4)', border: 'none', marginTop: 8,
+            }}>
               <CalendarCheck size={17} />
               {savingAppt ? 'Agendando...' : 'Confirmar agendamento'}
               {canConfirm && <ChevronRight size={16} style={{ marginLeft: 4 }} />}
@@ -350,13 +300,11 @@ export default function AgendamentosPage() {
         </div>
       )}
 
-      {/* ── LISTA ── */}
       {tab === 'lista' && (
         <>
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: 48 }}>
-              <div className="w-8 h-8 rounded-full animate-spin"
-                style={{ border: '2px solid rgba(201,168,76,.2)', borderTopColor: '#C9A84C' }} />
+              <div className="w-8 h-8 rounded-full animate-spin" style={{ border: '2px solid rgba(201,168,76,.2)', borderTopColor: '#C9A84C' }} />
             </div>
           ) : appointments.length === 0 ? (
             <div style={{ ...card, textAlign: 'center', padding: 48 }}>
@@ -368,68 +316,38 @@ export default function AgendamentosPage() {
                 const st = statusInfo[appt.status] ?? statusInfo.pending
                 const scheduledDate = new Date(appt.scheduled_at)
                 const isPast = scheduledDate < new Date()
-
                 return (
                   <div key={appt.id} style={card}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
                       <div style={{ flex: 1 }}>
-
-                        {/* Nome + status */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                           <p style={{ color: '#F5F0E8', fontSize: 17, fontWeight: 400 }}>{appt.client_name}</p>
-                          <span style={{
-                            fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase',
-                            color: st.color, padding: '3px 10px', borderRadius: 99,
-                            background: `${st.color}15`, border: `1px solid ${st.color}35`,
-                          }}>
+                          <span style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: st.color, padding: '3px 10px', borderRadius: 99, background: `${st.color}15`, border: `1px solid ${st.color}35` }}>
                             {st.label}
                           </span>
                         </div>
-
-                        {/* Infos */}
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 18, marginBottom: 14 }}>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
-                            <Phone size={13} style={{ color: '#C9A84C', opacity: 0.7 }} />
-                            {appt.client_phone}
+                            <Phone size={13} style={{ color: '#C9A84C', opacity: 0.7 }} />{appt.client_phone}
                           </span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
-                            <Scissors size={13} style={{ color: '#f87171', opacity: 0.8 }} />
-                            {(appt as any).service_name ?? appt.service?.name ?? '—'}
+                            <Scissors size={13} style={{ color: '#f87171', opacity: 0.8 }} />{(appt as any).service_name ?? appt.service?.name ?? '—'}
                           </span>
                           <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(245,240,232,.5)' }}>
                             <Calendar size={13} style={{ color: 'rgba(245,240,232,.4)' }} />
                             {scheduledDate.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' })} às {scheduledDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
-
-                        {/* Valor */}
                         <p style={{ fontSize: 20, color: '#C9A84C', fontWeight: 300, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                           {fmt(appt.amount)}
                         </p>
                       </div>
-
                       {appt.status === 'pending' && isPast && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                          <button
-                            onClick={() => updateStatus(appt.id, 'confirmed', appt.amount)}
-                            disabled={saving === appt.id}
-                            style={{
-                              padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer',
-                              background: 'rgba(74,222,128,.08)', border: '1px solid rgba(74,222,128,.25)',
-                              color: '#4ade80', whiteSpace: 'nowrap', transition: 'all .2s',
-                            }}
-                          >
+                          <button onClick={() => updateStatus(appt.id, 'confirmed', appt.amount)} disabled={saving === appt.id} style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer', background: 'rgba(74,222,128,.08)', border: '1px solid rgba(74,222,128,.25)', color: '#4ade80', whiteSpace: 'nowrap', transition: 'all .2s' }}>
                             ✓ Compareceu
                           </button>
-                          <button
-                            onClick={() => updateStatus(appt.id, 'no_show', appt.amount)}
-                            disabled={saving === appt.id}
-                            style={{
-                              padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer',
-                              background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.25)',
-                              color: '#f87171', whiteSpace: 'nowrap', transition: 'all .2s',
-                            }}
-                          >
+                          <button onClick={() => updateStatus(appt.id, 'no_show', appt.amount)} disabled={saving === appt.id} style={{ padding: '8px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer', background: 'rgba(248,113,113,.08)', border: '1px solid rgba(248,113,113,.25)', color: '#f87171', whiteSpace: 'nowrap', transition: 'all .2s' }}>
                             ✗ Não compareceu
                           </button>
                         </div>

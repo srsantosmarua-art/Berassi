@@ -95,13 +95,9 @@ export default function HorariosPage() {
   }
 
   return (
-    <div className="max-w-[860px] mx-auto">
-
+    <div>
       {/* Carrossel de dias */}
-      <div
-        className="flex gap-2 overflow-x-auto pb-4"
-        style={{ scrollbarWidth: 'none', marginBottom: 36 }}
-      >
+      <div className="flex gap-2 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none', marginBottom: 36 }}>
         {days.map(day => {
           const dateStr = formatDate(day)
           const isSelected = dateStr === selectedDate
@@ -111,10 +107,9 @@ export default function HorariosPage() {
               onClick={() => setSelectedDate(dateStr)}
               className="transition-all duration-200 flex-shrink-0"
               style={{
-                width: 68, minWidth: 68, height: 80,
-                borderRadius: 14,
+                width: 68, minWidth: 68, height: 80, borderRadius: 14,
                 border: isSelected ? '1px solid rgba(201,168,76,.8)' : '1px solid rgba(201,168,76,.12)',
-                background: isSelected ? '#C9A84C' : 'rgba(10,10,10,.6)',
+                background: isSelected ? '#C9A84C' : 'rgba(5,5,5,.92)',
                 color: isSelected ? '#0d0d0d' : '#F5F0E8',
               }}
             >
@@ -142,28 +137,13 @@ export default function HorariosPage() {
           disabled={saving}
           className="flex items-center gap-2 transition-all duration-200"
           style={{
-            padding: '10px 18px',
-            borderRadius: 12,
+            padding: '10px 18px', borderRadius: 12,
             border: '1px solid rgba(201,168,76,.25)',
-            background: 'rgba(201,168,76,.05)',
-            color: '#C9A84C',
-            fontSize: 13,
-            cursor: 'pointer',
-            letterSpacing: '0.02em',
-          }}
-          onMouseEnter={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,.6)'
-            ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(201,168,76,.1)'
-          }}
-          onMouseLeave={e => {
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(201,168,76,.25)'
-            ;(e.currentTarget as HTMLButtonElement).style.background = 'rgba(201,168,76,.05)'
+            background: 'rgba(5,5,5,.92)',
+            color: '#C9A84C', fontSize: 13, cursor: 'pointer', letterSpacing: '0.02em',
           }}
         >
-          {isBlocked
-            ? <><LockOpen size={14} /> Desbloquear dia</>
-            : <><Lock size={14} /> Bloquear dia</>
-          }
+          {isBlocked ? <><LockOpen size={14} /> Desbloquear dia</> : <><Lock size={14} /> Bloquear dia</>}
         </button>
       </div>
 
@@ -172,7 +152,7 @@ export default function HorariosPage() {
         {[
           { label: 'Disponível', bg: 'rgba(201,168,76,.15)', border: 'rgba(201,168,76,.5)' },
           { label: 'Agendado',   bg: 'rgba(239,68,68,.15)',  border: 'rgba(239,68,68,.5)' },
-          { label: 'Livre',      bg: 'rgba(10,10,10,.6)',    border: 'rgba(255,255,255,.12)' },
+          { label: 'Livre',      bg: 'rgba(5,5,5,.92)',      border: 'rgba(255,255,255,.12)' },
         ].map(item => (
           <div key={item.label} className="flex items-center gap-2">
             <div style={{ width: 13, height: 13, borderRadius: 3, background: item.bg, border: `1px solid ${item.border}` }} />
@@ -181,14 +161,14 @@ export default function HorariosPage() {
         ))}
       </div>
 
-      {/* Grid / estados */}
+      {/* Grid */}
       {loading ? (
         <div className="flex justify-center py-20">
           <div className="w-10 h-10 rounded-full animate-spin"
             style={{ border: '2px solid rgba(201,168,76,.2)', borderTopColor: '#C9A84C' }} />
         </div>
       ) : isBlocked ? (
-        <div style={{ padding: 40, borderRadius: 16, textAlign: 'center', border: '1px solid rgba(239,68,68,.2)', background: 'rgba(239,68,68,.04)' }}>
+        <div style={{ padding: 40, borderRadius: 16, textAlign: 'center', border: '1px solid rgba(239,68,68,.2)', background: 'rgba(5,5,5,.92)' }}>
           <p style={{ color: '#f87171', fontSize: 15 }}>Este dia está bloqueado</p>
         </div>
       ) : (
@@ -211,17 +191,12 @@ export default function HorariosPage() {
                     ? '1px solid rgba(201,168,76,.55)'
                     : '1px solid rgba(201,168,76,.15)',
                   background: isBooked
-                    ? 'rgba(239,68,68,.1)'
+                    ? 'rgba(239,68,68,.15)'
                     : isOpen
-                    ? 'rgba(201,168,76,.12)'
-                    : 'rgba(10,10,10,.6)',
-                  color: isBooked
-                    ? '#f87171'
-                    : isOpen
-                    ? '#C9A84C'
-                    : 'rgba(255,255,255,.55)',
-                  fontSize: 15,
-                  fontWeight: 400,
+                    ? 'rgba(201,168,76,.2)'
+                    : 'rgba(5,5,5,.92)',
+                  color: isBooked ? '#f87171' : isOpen ? '#C9A84C' : 'rgba(255,255,255,.55)',
+                  fontSize: 15, fontWeight: 400,
                   cursor: isBooked ? 'not-allowed' : 'pointer',
                   letterSpacing: '0.02em',
                 }}

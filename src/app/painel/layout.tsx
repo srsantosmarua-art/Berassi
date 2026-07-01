@@ -30,8 +30,8 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
   }
 
   if (checking) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#0d0d0d' }}>
-      <div className="w-10 h-10 rounded-full animate-spin" style={{ border: '2px solid rgba(201,168,76,0.3)', borderTopColor: '#C9A84C' }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0d0d0d' }}>
+      <div style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(201,168,76,0.3)', borderTopColor: '#C9A84C', animation: 'spin 1s linear infinite' }} />
     </div>
   )
 
@@ -42,19 +42,11 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
   ]
 
   return (
-    <div className="min-h-screen" style={{
-      backgroundImage: "url('/marble-bg.png')",
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed',
-    }}>
-      <div className="fixed inset-0 bg-black/100 z-0" />
-
-      <div className="relative z-10 min-h-screen flex flex-col">
+    <div style={{ minHeight: '100vh', background: '#0d0d0d', backgroundImage: "url('/marble-bg.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
 
         {/* Header */}
-        <header className="max-w-[860px] mx-auto w-full px-6 flex items-center justify-between"
-          style={{ paddingTop: 48, paddingBottom: 32 }}>
+        <header style={{ padding: '48px 48px 32px 48px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <p style={{ color: 'rgba(201,168,76,0.6)', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 4 }}>
               Bem-vindo(a)
@@ -65,8 +57,7 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
           </div>
           <button
             onClick={handleLogout}
-            style={{ color: 'rgba(200,191,168,0.6)', fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer' }}
-            className="hover:opacity-80 transition-opacity flex items-center gap-2"
+            style={{ color: 'rgba(200,191,168,0.6)', fontSize: 13, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
           >
             <LogOut size={14} />
             Sair
@@ -74,7 +65,7 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
         </header>
 
         {/* Tabs */}
-        <div className="max-w-[860px] mx-auto w-full px-6 flex gap-3" style={{ marginBottom: 40 }}>
+        <div style={{ padding: '0 48px', marginBottom: 40, display: 'flex', gap: 12 }}>
           {tabs.map(tab => {
             const isActive = pathname === tab.href
             return (
@@ -82,16 +73,10 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
                 key={tab.href}
                 href={tab.href}
                 style={{
-                  width: 156,
-                  height: 42,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: 12,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  textDecoration: 'none',
-                  transition: 'all .2s ease',
+                  width: 156, height: 42,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 12, fontSize: 14, fontWeight: 500,
+                  textDecoration: 'none', transition: 'all .2s ease',
                   background: isActive ? '#C9A84C' : 'rgba(255,255,255,.04)',
                   color: isActive ? '#0D0D0D' : 'rgba(240,235,225,.8)',
                   border: isActive ? 'none' : '1px solid rgba(255,255,255,.08)',
@@ -104,10 +89,8 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
         </div>
 
         {/* Content */}
-        <main className="flex-1 pb-20">
-          <div className="max-w-[860px] mx-auto px-6">
-            {children}
-          </div>
+        <main style={{ flex: 1, paddingBottom: 80, padding: '0 48px 80px 48px' }}>
+          {children}
         </main>
 
       </div>
