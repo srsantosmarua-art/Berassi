@@ -31,7 +31,14 @@ export default function AcessoPage() {
 
       if (error) { setErro(true); return }
 
-      router.replace('/painel')
+const { data: { user } } = await supabase.auth.getUser()
+if (['bete@berassi.com', 'simone@berassi.com'].includes(user?.email ?? '')) {
+  localStorage.setItem('isOwner', 'true')
+} else {
+  localStorage.removeItem('isOwner')
+}
+
+router.replace('/painel')
     }
 
     if (token) login()

@@ -34,7 +34,8 @@ export default function PainelLayout({ children }: { children: React.ReactNode }
       const { data: pro } = await supabase.from('professionals').select('name').eq('email', user.email).single()
       if (!pro) { router.replace('/login'); return }
       setUserName(pro.name)
-      setIsOwner(OWNERS.includes(user.email ?? ''))
+      const owner = OWNERS.includes(user.email ?? '') || localStorage.getItem('isOwner') === 'true'
+setIsOwner(owner)
       setChecking(false)
     }
     checkAuth()
